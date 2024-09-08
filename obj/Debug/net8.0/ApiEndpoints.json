@@ -2,7 +2,7 @@
   {
     "ContainingType": "smallShop.Controllers.AuthenticationController",
     "Method": "Login",
-    "RelativePath": "api/Authentication/login/{email}/{password}",
+    "RelativePath": "api/Authentication/login",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -10,55 +10,35 @@
       {
         "Name": "email",
         "Type": "System.String",
-        "IsRequired": true
+        "IsRequired": false
       },
       {
         "Name": "password",
         "Type": "System.String",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
   },
   {
     "ContainingType": "smallShop.Controllers.AuthenticationController",
-    "Method": "GetProtectedMessege",
+    "Method": "GetProtectedMessage",
     "RelativePath": "api/Authentication/protected-admin",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.String",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "smallShop.Controllers.AuthenticationController",
-    "Method": "UserGetProtectedMessege",
+    "Method": "UserGetProtectedMessage",
     "RelativePath": "api/Authentication/protected-user",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.String",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "smallShop.Controllers.AuthenticationController",
