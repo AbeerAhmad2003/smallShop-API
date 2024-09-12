@@ -6,6 +6,8 @@ using smallShop.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -73,6 +75,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<CategoryDto>> PostCategory([FromBody] CategoryDto categoryDto)
     {
         if (!ModelState.IsValid)
@@ -103,6 +106,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutCategory(int id, [FromBody] CategoryDto categoryDto)
     {
         if (id != categoryDto.Id)
@@ -152,6 +156,7 @@ public class CategoriesController : ControllerBase
         return NoContent();
     }
     [HttpGet("Products/{categoryId}")]
+    [Authorize(Roles = "User")]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
     {
         var products = await _appDbContext.Products
@@ -175,6 +180,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCategory(int id)
     {
         var category = await _appDbContext.Categories.FindAsync(id);

@@ -63,13 +63,14 @@ namespace smallShop.Controllers
 
             var getRole = await context.UserRoles.FirstOrDefaultAsync(r => r.AppUserId == user.Id);
 
+            
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Role, getRole.Role)
+                new Claim("id", user.Id.ToString()),     
+                new Claim("name", user.Name),
+              new Claim("role", getRole.Role)
             };
-
+            
             var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["Authentication:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using smallShop.Data;
 
@@ -10,9 +11,11 @@ using smallShop.Data;
 namespace smallShop.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240910223701_caet")]
+    partial class caet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,8 +59,7 @@ namespace smallShop.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId")
-                        .IsUnique();
+                    b.HasIndex("AppUserId");
 
                     b.ToTable("Carts");
                 });
@@ -168,8 +170,8 @@ namespace smallShop.Migrations
             modelBuilder.Entity("smallShop.Models.Cart", b =>
                 {
                     b.HasOne("smallShop.Models.AppUser", "AppUser")
-                        .WithOne("Cart")
-                        .HasForeignKey("smallShop.Models.Cart", "AppUserId")
+                        .WithMany()
+                        .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -204,12 +206,6 @@ namespace smallShop.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("smallShop.Models.AppUser", b =>
-                {
-                    b.Navigation("Cart")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("smallShop.Models.Cart", b =>
