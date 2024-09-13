@@ -8,70 +8,39 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
+using smallShop.Services;
 
 [Route("api/[controller]")]
 [ApiController]
 public class CategoriesController : ControllerBase
 {
-    private readonly AppDbContext _appDbContext;
+    private readonly ICategoryService _categoryService;
 
-    public CategoriesController(AppDbContext appDbContext)
+    public CategoriesController(ICategoryService categoryService)
     {
-        _appDbContext = appDbContext;
+        _categoryService = categoryService;
     }
+
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
     {
-        var categories = await _appDbContext.Categories
-            .Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                UrlImg = c.UrlImg,
-                Products = c.Products.Select(p => new ProductDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Price = p.Price,
-                    UrlImg = p.UrlImg,
-                    CategoryId = p.CategoryId
-                }).ToList()
-            }).ToListAsync();
-
+        var categories = await _categoryService.GetCategoriesAsync();
         return Ok(categories);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<CategoryDto>> GetCategory(int id)
     {
-        var category = await _appDbContext.Categories
-            .Where(c => c.Id == id)
-            .Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                UrlImg = c.UrlImg,
-                Products = c.Products.Select(p => new ProductDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Price = p.Price,
-                    UrlImg = p.UrlImg,
-                    CategoryId = p.CategoryId
-                }).ToList()
-            }).FirstOrDefaultAsync();
-
+        var category = await _categoryService.GetCategoryByIdAsync(id);
         if (category == null)
         {
             return NotFound();
         }
 
+
         return Ok(category);
+       
     }
 
     [HttpPost]
@@ -83,26 +52,8 @@ public class CategoriesController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var category = new Category
-        {
-            Name = categoryDto.Name,
-            Description = categoryDto.Description,
-            UrlImg = categoryDto.UrlImg,
-            Products = categoryDto.Products.Select(dto => new Product
-            {
-                Name = dto.Name,
-                Description = dto.Description,
-                Price = dto.Price,
-                UrlImg = dto.UrlImg,
-                CategoryId = categoryDto.Id
-            }).ToList()
-        };
-
-        _appDbContext.Categories.Add(category);
-        await _appDbContext.SaveChangesAsync();
-
-        categoryDto.Id = category.Id;
-        return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, categoryDto);
+        var createdCategory = await _categoryService.AddCategoryAsync(categoryDto);
+        return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.Id }, createdCategory);
     }
 
     [HttpPut("{id}")]
@@ -114,43 +65,10 @@ public class CategoriesController : ControllerBase
             return BadRequest();
         }
 
-        var category = await _appDbContext.Categories.FindAsync(id);
-        if (category == null)
+        var updated = await _categoryService.UpdateCategoryAsync(id, categoryDto);
+        if (!updated)
         {
             return NotFound();
-        }
-
-        category.Name = categoryDto.Name;
-        category.Description = categoryDto.Description;
-        category.UrlImg = categoryDto.UrlImg;
-
-        // Remove existing products and add updated ones
-        _appDbContext.Products.RemoveRange(category.Products);
-        category.Products = categoryDto.Products.Select(dto => new Product
-        {
-            Name = dto.Name,
-            Description = dto.Description,
-            Price = dto.Price,
-            UrlImg = dto.UrlImg,
-            CategoryId = categoryDto.Id
-        }).ToList();
-
-        _appDbContext.Entry(category).State = EntityState.Modified;
-
-        try
-        {
-            await _appDbContext.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!CategoryExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
         }
 
         return NoContent();
@@ -159,18 +77,7 @@ public class CategoriesController : ControllerBase
     [Authorize(Roles = "User")]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
     {
-        var products = await _appDbContext.Products
-            .Where(p => p.CategoryId == categoryId)
-            .Select(p => new ProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                UrlImg = p.UrlImg,
-                CategoryId = p.CategoryId
-            }).ToListAsync();
-
+        var products = await _categoryService.GetProductsByCategoryAsync(categoryId);
         if (!products.Any())
         {
             return NotFound();
@@ -183,19 +90,14 @@ public class CategoriesController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCategory(int id)
     {
-        var category = await _appDbContext.Categories.FindAsync(id);
-        if (category == null)
+        var deleted = await _categoryService.DeleteCategoryAsync(id);
+        if (!deleted)
         {
             return NotFound();
         }
 
-        _appDbContext.Categories.Remove(category);
-        await _appDbContext.SaveChangesAsync();
         return NoContent();
     }
 
-    private bool CategoryExists(int id)
-    {
-        return _appDbContext.Categories.Any(e => e.Id == id);
-    }
+   
 }

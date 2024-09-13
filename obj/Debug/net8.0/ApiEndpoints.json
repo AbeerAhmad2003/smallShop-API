@@ -94,16 +94,6 @@
   },
   {
     "ContainingType": "smallShop.Controllers.CartController",
-    "Method": "ClearCart",
-    "RelativePath": "api/Cart/clear",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "smallShop.Controllers.CartController",
     "Method": "DecreaseQuantity",
     "RelativePath": "api/Cart/decrease/{productId}",
     "HttpMethod": "PUT",
